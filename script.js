@@ -1,19 +1,30 @@
 let totalAmount = 0;
-let inventory = {};
 
-document.getElementById('transaction-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const itemName = document.getElementById('item-name').value;
-    const quantity = parseInt(document.getElementById('quantity').value);
-    const unitPrice = parseFloat(document.getElementById('unit-price').value);
+// Sample items for the cashier menu
+const items = [
+    { name: "Item A", price: 10000 },
+    { name: "Item B", price: 20000 },
+    { name: "Item C", price: 15000 },
+    { name: "Item D", price: 30000 },
+];
 
-    const amount = quantity * unitPrice;
-    totalAmount += amount;
-
-    document.getElementById('total-display').innerText = `Total: Rp${totalAmount}`;
-    document.getElementById('transaction-form').reset();
+// Populate item buttons
+const itemList = document.getElementById('item-list');
+items.forEach(item => {
+    const button = document.createElement('button');
+    button.className = 'item-button';
+    button.innerText = `${item.name} - Rp${item.price}`;
+    button.onclick = () => addItemToTransaction(item);
+    itemList.appendChild(button);
 });
 
+// Add item to transaction
+function addItemToTransaction(item) {
+    totalAmount += item.price;
+    document.getElementById('total-display').innerText = `Total: Rp${totalAmount}`;
+}
+
+// Handle cash payment
 document.getElementById('pay-cash').addEventListener('click', () => {
     if (totalAmount > 0) {
         alert(`Paid in cash: Rp${totalAmount}`);
@@ -24,18 +35,7 @@ document.getElementById('pay-cash').addEventListener('click', () => {
     }
 });
 
-// Inventory management
-document.getElementById('inventory-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const itemName = document.getElementById('inventory-item').value;
-    const quantity = parseInt(document.getElementById('inventory-quantity').value);
-
-    if (inventory[itemName]) {
-        inventory[itemName] += quantity;
-    } else {
-        inventory[itemName] = quantity;
-    }
-
-    alert(`Added ${quantity} of ${itemName} to inventory. Current stock: ${inventory[itemName]}`);
-    document.getElementById('inventory-form').reset();
+// Navigate to Inventory Menu
+document.getElementById('go-inventory').addEventListener('click', () => {
+    window.location.href = 'inventory.html'; // Create this file separately
 });
