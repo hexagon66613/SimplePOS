@@ -3,32 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POS System</title>
+    <title>Cashier Menu</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>POS System</h1>
-
-    <section id="cashier-menu">
-        <h2>Cashier Menu</h2>
-        <form id="transaction-form">
-            <input type="text" id="item-name" placeholder="Item Name" required>
-            <input type="number" id="quantity" placeholder="Quantity" required>
-            <input type="number" id="unit-price" placeholder="Unit Price" required>
-            <button type="submit">Add Item</button>
-        </form>
-        <div id="total-display">Total: Rp0</div>
-        <button id="pay-cash">Pay Cash</button>
-    </section>
-
-    <section id="inventory-menu">
-        <h2>Inventory Menu</h2>
-        <form id="inventory-form">
-            <input type="text" id="inventory-item" placeholder="Item Name" required>
-            <input type="number" id="inventory-quantity" placeholder="Quantity" required>
-            <button type="submit">Add to Inventory</button>
-        </form>
-    </section>
+    <h1>Cashier Menu</h1>
+    <div id="item-list">
+        <!-- Items will be dynamically added here -->
+    </div>
+    <div id="total-display">Total: Rp0</div>
+    <button id="pay-cash">Pay Cash</button>
+    <button id="go-inventory">Go to Inventory</button>
 
     <script src="script.js"></script>
 </body>
