@@ -85,6 +85,16 @@ document.getElementById('print-bill').addEventListener('click', () => {
     printWindow.print();
 });
 
+// Done button to finish transaction
+document.getElementById('done-transaction').addEventListener('click', () => {
+    alert('Transaction completed!');
+    // Clear selected items and total
+    selectedItems = [];
+    totalAmount = 0;
+    updateItemsDisplay();
+    document.getElementById('bill-modal').style.display = 'none';
+});
+
 // Navigate to Inventory Menu
 document.getElementById('go-inventory').addEventListener('click', () => {
     window.location.href = 'inventory.html'; // Make sure you have this page created
