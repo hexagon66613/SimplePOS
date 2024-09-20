@@ -1,0 +1,17 @@
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+h1, h2 {
+    color: #333;
+}
+
+#transaction-form, #inventory-form {
+    margin-bottom: 20px;
+}
+
+input {
+    margin-right: 10px;
+}
