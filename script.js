@@ -46,31 +46,44 @@ function updateItemsDisplay() {
     document.getElementById('total-display').innerText = `Total: Rp${totalAmount}`;
 }
 
-// Handle cash payment and print preview
+// Handle cash payment and show bill modal
 document.getElementById('pay-cash').addEventListener('click', () => {
     if (totalAmount > 0) {
-        printBill();
+        showBill();
     } else {
         alert('No amount to pay.');
     }
 });
 
-// Print bill preview
-function printBill() {
-    const billWindow = window.open('', 'Print Bill', 'height=600,width=400');
-    billWindow.document.write('<html><head><title>Bill</title><style>');
-    billWindow.document.write('body { font-family: Arial, sans-serif; padding: 20px; }');
-    billWindow.document.write('.item { display: flex; justify-content: space-between; }');
-    billWindow.document.write('</style></head><body>');
-    billWindow.document.write('<h2>Bill</h2>');
+// Show the bill in a modal
+function showBill() {
+    const billItems = document.getElementById('bill-items');
+    billItems.innerHTML = ''; // Clear current bill display
     selectedItems.forEach(item => {
-        billWindow.document.write(`<div class="item">${item.name} x${item.quantity} - Rp${item.price * item.quantity}</div>`);
+        billItems.innerHTML += `<div class="item">${item.name} x${item.quantity} - Rp${item.price * item.quantity}</div>`;
     });
-    billWindow.document.write(`<h3>Total: Rp${totalAmount}</h3>`);
-    billWindow.document.write('</body></html>');
-    billWindow.document.close();
-    billWindow.print();
+    document.getElementById('bill-total').innerText = `Total: Rp${totalAmount}`;
+    document.getElementById('bill-modal').style.display = 'block';
 }
+
+// Close the modal
+document.querySelector('.close-button').addEventListener('click', () => {
+    document.getElementById('bill-modal').style.display = 'none';
+});
+
+// Print the bill
+document.getElementById('print-bill').addEventListener('click', () => {
+    const billContent = document.getElementById('bill-modal').innerHTML;
+    const printWindow = window.open('', 'Print Bill', 'height=600,width=400');
+    printWindow.document.write('<html><head><title>Bill</title><style>');
+    printWindow.document.write('body { font-family: Arial, sans-serif; padding: 20px; }');
+    printWindow.document.write('.item { margin: 5px 0; }');
+    printWindow.document.write('</style></head><body>');
+    printWindow.document.write(billContent);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.print();
+});
 
 // Navigate to Inventory Menu
 document.getElementById('go-inventory').addEventListener('click', () => {
