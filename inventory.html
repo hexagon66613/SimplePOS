@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Menu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Inventory Menu</h1>
+    <form id="inventory-form">
+        <input type="text" id="inventory-item" placeholder="Item Name" required>
+        <input type="number" id="inventory-quantity" placeholder="Quantity" required>
+        <button type="submit">Add to Inventory</button>
+    </form>
+
+    <button id="go-cashier">Go to Cashier Menu</button>
+
+    <script>
+        // Handle Inventory Form Submission
+        document.getElementById('inventory-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const itemName = document.getElementById('inventory-item').value;
+            const quantity = parseInt(document.getElementById('inventory-quantity').value);
+
+            // Handle adding to inventory logic here (e.g., store in an array or update the UI)
+            alert(`Added ${quantity} of ${itemName} to inventory.`);
+            document.getElementById('inventory-form').reset();
+        });
+
+        // Navigate to Cashier Menu
+        document.getElementById('go-cashier').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
