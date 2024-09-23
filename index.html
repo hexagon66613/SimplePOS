@@ -19,7 +19,7 @@
         let selectedItems = [];
 
         // Fetch available products from the server
-        fetch('http://localhost:5000/products')
+        fetch('http://localhost:5050/products')
             .then(response => response.json())
             .then(data => {
                 const itemList = document.getElementById('item-list');
@@ -60,7 +60,7 @@
         // Handle done transaction
         document.getElementById('done-transaction').addEventListener('click', () => {
             if (totalAmount > 0) {
-                fetch('http://localhost:5000/record_transaction', {
+                fetch('http://localhost:5050/record_transaction', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
