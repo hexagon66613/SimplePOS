@@ -12,22 +12,22 @@
     <div id="total-display"></div>
     <button id="done-transaction">Done Transaction</button>
     <button id="go-inventory">Go to Inventory Menu</button>
-    <button id="go-manage-sku">Manage SKU</button>
+    <button id="go-manage-bom">Go to Manage BOM</button>
 
     <script>
         let totalAmount = 0;
         let selectedItems = [];
 
-        // Fetch available products
-        fetch('http://localhost:5000/products')
+        // Fetch available products from BOM
+        fetch('http://localhost:5000/bom')
             .then(response => response.json())
             .then(data => {
                 const itemList = document.getElementById('item-list');
                 data.forEach(product => {
                     const button = document.createElement('button');
                     button.className = 'item-button';
-                    button.innerText = `${product[0]} - Rp${product[1]}`; // Assuming product[0] is name and product[1] is price
-                    button.onclick = () => addItemToTransaction(product[0], product[1]); // Use product name and price
+                    button.innerText = `${product[0]} (${product[1]}) - Rp${product[2]}`; // Assuming product[0] is name, product[1] is UoM, product[2] is price
+                    button.onclick = () => addItemToTransaction(product[0], product[2]); // Use product name and price
                     itemList.appendChild(button);
                 });
             });
@@ -59,25 +59,27 @@
         // Handle done transaction
         document.getElementById('done-transaction').addEventListener('click', () => {
             if (totalAmount > 0) {
-                fetch('/record_transaction', {
+                fetch('http://localhost:5000/record_transaction', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        item: selectedItems.map(i => i.name).join(', '),
-                        amount: totalAmount
+                        items: selectedItems,
+                        totalAmount: totalAmount
                     })
                 })
                 .then(response => response.json())
                 .then(data => {
                     alert(data.message);
-                    // Reset transaction
+                    // Clear selected items and total
                     selectedItems = [];
                     totalAmount = 0;
                     updateItemsDisplay();
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                });
             } else {
                 alert('No transaction to record.');
             }
@@ -88,9 +90,9 @@
             window.location.href = 'inventory.html';
         });
 
-        // Navigate to Manage SKU
-        document.getElementById('go-manage-sku').addEventListener('click', () => {
-            window.location.href = 'manage_sku.html';
+        // Navigate to Manage BOM
+        document.getElementById('go-manage-bom').addEventListener('click', () => {
+            window.location.href = 'manage_bom.html'; // Ensure you create this page
         });
     </script>
 </body>
