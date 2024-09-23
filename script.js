@@ -89,7 +89,7 @@ document.getElementById('print-bill').addEventListener('click', () => {
 document.getElementById('done-transaction').addEventListener('click', () => {
     if (totalAmount > 0) {
         // Send the transaction data to the server
-        fetch('/record_transaction', {
+        fetch('http://localhost:5000/record_transaction', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
