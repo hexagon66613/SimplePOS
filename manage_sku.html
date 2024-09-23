@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage SKU</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Manage SKU</h1>
+    <form id="sku-form">
+        <input type="text" id="sku-item" placeholder="Item Name" required>
+        <input type="text" id="sku-uom" placeholder="Unit of Measure" required>
+        <input type="number" id="sku-price" placeholder="Price" required>
+        <button type="submit">Add SKU</button>
+    </form>
+
+    <table id="sku-table">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>UoM</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        // Fetch SKU data
+        function fetchSkuData() {
+            fetch('http://localhost:5000/sku')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.querySelector('#sku-table tbody');
+                    tbody.innerHTML = '';
+                    data.forEach((row, index) => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${row[1]}</td>
+                                <td>${row[2]}</td>
+                                <td>${row[3]}</td>
+                                <td><button onclick="deleteSku(${row[0]})">Delete</button></td>
+                            </tr>
+                        `;
+                    });
+                });
+        }
+
+        // Handle SKU Form Submission
+        document.getElementById('sku-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const item = document.getElementById('sku-item').value;
+            const uom = document.getElementById('sku-uom').value;
+            const price = document.getElementById('sku-price').value;
+
+            fetch('http://localhost:5000/sku', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ item, uom, price })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                fetchSkuData();
+                document.getElementById('sku-form').reset();
+            });
+        });
+
+        // Delete SKU
+        function deleteSku(id) {
+            fetch('http://localhost:5000/sku', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                fetchSkuData();
+            });
+        }
+
+        // Initial fetch
+        fetchSkuData();
+    </script>
+</body>
+</html>
