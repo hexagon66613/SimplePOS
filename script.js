@@ -85,14 +85,35 @@ document.getElementById('print-bill').addEventListener('click', () => {
     printWindow.print();
 });
 
-// Done button to finish transaction
+// Done button to finish transaction and record it in the database
 document.getElementById('done-transaction').addEventListener('click', () => {
-    alert('Transaction completed!');
-    // Clear selected items and total
-    selectedItems = [];
-    totalAmount = 0;
-    updateItemsDisplay();
-    document.getElementById('bill-modal').style.display = 'none';
+    if (totalAmount > 0) {
+        // Send the transaction data to the server
+        fetch('/record_transaction', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                item: selectedItems.map(item => item.name).join(', '),
+                amount: totalAmount
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            // Clear selected items and total
+            selectedItems = [];
+            totalAmount = 0;
+            updateItemsDisplay();
+            document.getElementById('bill-modal').style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    } else {
+        alert('No transaction to record.');
+    }
 });
 
 // Navigate to Inventory Menu
