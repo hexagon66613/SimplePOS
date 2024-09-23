@@ -29,7 +29,7 @@
     <script>
         // Fetch Inventory Data
         function fetchInventoryData() {
-            fetch('http://localhost:5000/inventory')
+            fetch('http://localhost:5050/inventory')
                 .then(response => response.json())
                 .then(data => {
                     const tbody = document.querySelector('#inventory-table tbody');
