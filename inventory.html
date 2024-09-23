@@ -14,32 +14,60 @@
         <button type="submit">Add to Inventory</button>
     </form>
 
+    <table id="inventory-table">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
     <button id="go-cashier">Go to Cashier Menu</button>
 
     <script>
+        // Fetch Inventory Data
+        function fetchInventoryData() {
+            fetch('http://localhost:5000/inventory')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.querySelector('#inventory-table tbody');
+                    tbody.innerHTML = '';
+                    data.forEach(row => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${row[1]}</td>
+                                <td>${row[2]}</td>
+                            </tr>
+                        `;
+                    });
+                });
+        }
+
         // Handle Inventory Form Submission
         document.getElementById('inventory-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const itemName = document.getElementById('inventory-item').value;
-            const quantity = parseInt(document.getElementById('inventory-quantity').value);
+            const item = document.getElementById('inventory-item').value;
+            const qty = document.getElementById('inventory-quantity').value;
 
-            // Send inventory data to the server
-            fetch('/add_inventory', {
+            fetch('http://localhost:5000/inventory', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ item: itemName, qty: quantity })
+                body: JSON.stringify({ item, qty })
             })
             .then(response => response.json())
             .then(data => {
                 alert(data.message);
+                fetchInventoryData();
                 document.getElementById('inventory-form').reset();
-            })
-            .catch(error => {
-                console.error('Error:', error);
             });
         });
+
+        // Initial fetch
+        fetchInventoryData();
 
         // Navigate to Cashier Menu
         document.getElementById('go-cashier').addEventListener('click', () => {
