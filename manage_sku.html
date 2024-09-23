@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage SKU</title>
+    <title>Manage BOM</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Manage SKU</h1>
-    <form id="sku-form">
-        <input type="text" id="sku-item" placeholder="Item Name" required>
-        <input type="text" id="sku-uom" placeholder="Unit of Measure" required>
-        <input type="number" id="sku-price" placeholder="Price" required>
-        <button type="submit">Add SKU</button>
+    <h1>Manage BOM</h1>
+    <form id="bom-form">
+        <input type="text" id="bom-item" placeholder="Item Name" required>
+        <input type="text" id="bom-uom" placeholder="Unit of Measure" required>
+        <input type="number" id="bom-price" placeholder="Price" required>
+        <button type="submit">Add BOM</button>
     </form>
 
     <button id="go-inventory">Go to Inventory Menu</button>
-    <table id="sku-table">
+    <table id="bom-table">
         <thead>
             <tr>
                 <th>Item</th>
@@ -25,39 +25,39 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody id="sku-body"></tbody>
+        <tbody id="bom-body"></tbody>
     </table>
 
     <script>
-        // Fetch SKU data
-        function fetchSkuData() {
-            fetch('http://localhost:5000/sku')
+        // Fetch BOM data
+        function fetchBomData() {
+            fetch('http://localhost:5000/bom')
                 .then(response => response.json())
                 .then(data => {
-                    const skuBody = document.getElementById('sku-body');
-                    skuBody.innerHTML = ''; // Clear existing rows
-                    data.forEach(sku => {
+                    const bomBody = document.getElementById('bom-body');
+                    bomBody.innerHTML = ''; // Clear existing rows
+                    data.forEach(bom => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>${sku[0]}</td>
-                            <td>${sku[1]}</td>
-                            <td>Rp${sku[2]}</td>
-                            <td><button onclick="deleteSku('${sku[0]}')">Delete</button></td>
+                            <td>${bom[0]}</td>
+                            <td>${bom[1]}</td>
+                            <td>Rp${bom[2]}</td>
+                            <td><button onclick="deleteBom('${bom[0]}')">Delete</button></td>
                         `;
-                        skuBody.appendChild(row);
+                        bomBody.appendChild(row);
                     });
                 })
-                .catch(error => console.error('Error fetching SKU data:', error));
+                .catch(error => console.error('Error fetching BOM data:', error));
         }
 
-        // Handle SKU Form Submission
-        document.getElementById('sku-form').addEventListener('submit', (e) => {
+        // Handle BOM Form Submission
+        document.getElementById('bom-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const itemName = document.getElementById('sku-item').value;
-            const uom = document.getElementById('sku-uom').value;
-            const price = parseFloat(document.getElementById('sku-price').value);
+            const itemName = document.getElementById('bom-item').value;
+            const uom = document.getElementById('bom-uom').value;
+            const price = parseFloat(document.getElementById('bom-price').value);
 
-            fetch('http://localhost:5000/add_sku', {
+            fetch('http://localhost:5000/add_bom', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -67,27 +67,27 @@
             .then(response => response.json())
             .then(data => {
                 alert(data.message);
-                fetchSkuData(); // Refresh SKU data
-                document.getElementById('sku-form').reset();
+                fetchBomData(); // Refresh BOM data
+                document.getElementById('bom-form').reset();
             })
-            .catch(error => console.error('Error adding SKU:', error));
+            .catch(error => console.error('Error adding BOM:', error));
         });
 
-        // Delete SKU
-        function deleteSku(itemName) {
-            fetch(`http://localhost:5000/delete_sku/${itemName}`, {
+        // Delete BOM
+        function deleteBom(itemName) {
+            fetch(`http://localhost:5000/delete_bom/${itemName}`, {
                 method: 'DELETE'
             })
             .then(response => response.json())
             .then(data => {
                 alert(data.message);
-                fetchSkuData(); // Refresh SKU data
+                fetchBomData(); // Refresh BOM data
             })
-            .catch(error => console.error('Error deleting SKU:', error));
+            .catch(error => console.error('Error deleting BOM:', error));
         }
 
         // Initial fetch
-        fetchSkuData();
+        fetchBomData();
 
         // Navigate to Inventory Menu
         document.getElementById('go-inventory').addEventListener('click', () => {
