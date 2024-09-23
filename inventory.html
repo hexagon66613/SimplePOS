@@ -23,9 +23,22 @@
             const itemName = document.getElementById('inventory-item').value;
             const quantity = parseInt(document.getElementById('inventory-quantity').value);
 
-            // Handle adding to inventory logic here (e.g., store in an array or update the UI)
-            alert(`Added ${quantity} of ${itemName} to inventory.`);
-            document.getElementById('inventory-form').reset();
+            // Send inventory data to the server
+            fetch('/add_inventory', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ item: itemName, qty: quantity })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                document.getElementById('inventory-form').reset();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
         });
 
         // Navigate to Cashier Menu
