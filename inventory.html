@@ -14,56 +14,57 @@
         <button type="submit">Add to Inventory</button>
     </form>
 
+    <button id="go-cashier">Go to Cashier Menu</button>
     <table id="inventory-table">
         <thead>
             <tr>
                 <th>Item</th>
-                <th>Qty</th>
+                <th>Quantity</th>
             </tr>
         </thead>
-        <tbody></tbody>
+        <tbody id="inventory-body"></tbody>
     </table>
 
-    <button id="go-cashier">Go to Cashier Menu</button>
-
     <script>
-        // Fetch Inventory Data
+        // Fetch Inventory data
         function fetchInventoryData() {
-            fetch('http://localhost:5050/inventory')
+            fetch('http://localhost:5000/inventory') // Make sure this endpoint exists
                 .then(response => response.json())
                 .then(data => {
-                    const tbody = document.querySelector('#inventory-table tbody');
-                    tbody.innerHTML = '';
-                    data.forEach(row => {
-                        tbody.innerHTML += `
-                            <tr>
-                                <td>${row[1]}</td>
-                                <td>${row[2]}</td>
-                            </tr>
+                    const inventoryBody = document.getElementById('inventory-body');
+                    inventoryBody.innerHTML = ''; // Clear existing rows
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${item[0]}</td>
+                            <td>${item[1]}</td>
                         `;
+                        inventoryBody.appendChild(row);
                     });
-                });
+                })
+                .catch(error => console.error('Error fetching inventory data:', error));
         }
 
         // Handle Inventory Form Submission
         document.getElementById('inventory-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const item = document.getElementById('inventory-item').value;
-            const qty = document.getElementById('inventory-quantity').value;
+            const itemName = document.getElementById('inventory-item').value;
+            const quantity = parseInt(document.getElementById('inventory-quantity').value);
 
-            fetch('http://localhost:5050/inventory', {
+            fetch('http://localhost:5000/add_inventory', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ item, qty })
+                body: JSON.stringify({ item: itemName, qty: quantity })
             })
             .then(response => response.json())
             .then(data => {
                 alert(data.message);
-                fetchInventoryData();
+                fetchInventoryData(); // Refresh inventory data
                 document.getElementById('inventory-form').reset();
-            });
+            })
+            .catch(error => console.error('Error adding to inventory:', error));
         });
 
         // Initial fetch
