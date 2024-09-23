@@ -15,79 +15,84 @@
         <button type="submit">Add SKU</button>
     </form>
 
+    <button id="go-inventory">Go to Inventory Menu</button>
     <table id="sku-table">
         <thead>
             <tr>
                 <th>Item</th>
                 <th>UoM</th>
                 <th>Price</th>
-                <th>Actions</th>
+                <th>Action</th>
             </tr>
         </thead>
-        <tbody></tbody>
+        <tbody id="sku-body"></tbody>
     </table>
 
     <script>
         // Fetch SKU data
         function fetchSkuData() {
-            fetch('http://localhost:5050/sku')
+            fetch('http://localhost:5000/sku')
                 .then(response => response.json())
                 .then(data => {
-                    const tbody = document.querySelector('#sku-table tbody');
-                    tbody.innerHTML = '';
-                    data.forEach((row, index) => {
-                        tbody.innerHTML += `
-                            <tr>
-                                <td>${row[1]}</td>
-                                <td>${row[2]}</td>
-                                <td>${row[3]}</td>
-                                <td><button onclick="deleteSku(${row[0]})">Delete</button></td>
-                            </tr>
+                    const skuBody = document.getElementById('sku-body');
+                    skuBody.innerHTML = ''; // Clear existing rows
+                    data.forEach(sku => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${sku[0]}</td>
+                            <td>${sku[1]}</td>
+                            <td>Rp${sku[2]}</td>
+                            <td><button onclick="deleteSku('${sku[0]}')">Delete</button></td>
                         `;
+                        skuBody.appendChild(row);
                     });
-                });
+                })
+                .catch(error => console.error('Error fetching SKU data:', error));
         }
 
         // Handle SKU Form Submission
         document.getElementById('sku-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const item = document.getElementById('sku-item').value;
+            const itemName = document.getElementById('sku-item').value;
             const uom = document.getElementById('sku-uom').value;
-            const price = document.getElementById('sku-price').value;
+            const price = parseFloat(document.getElementById('sku-price').value);
 
-            fetch('http://localhost:5000/sku', {
+            fetch('http://localhost:5000/add_sku', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ item, uom, price })
+                body: JSON.stringify({ item: itemName, uom: uom, price: price })
             })
             .then(response => response.json())
             .then(data => {
                 alert(data.message);
-                fetchSkuData();
+                fetchSkuData(); // Refresh SKU data
                 document.getElementById('sku-form').reset();
-            });
+            })
+            .catch(error => console.error('Error adding SKU:', error));
         });
 
         // Delete SKU
-        function deleteSku(id) {
-            fetch('http://localhost:5050/sku', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ id })
+        function deleteSku(itemName) {
+            fetch(`http://localhost:5000/delete_sku/${itemName}`, {
+                method: 'DELETE'
             })
             .then(response => response.json())
             .then(data => {
                 alert(data.message);
-                fetchSkuData();
-            });
+                fetchSkuData(); // Refresh SKU data
+            })
+            .catch(error => console.error('Error deleting SKU:', error));
         }
 
         // Initial fetch
         fetchSkuData();
+
+        // Navigate to Inventory Menu
+        document.getElementById('go-inventory').addEventListener('click', () => {
+            window.location.href = 'inventory.html';
+        });
     </script>
 </body>
 </html>
