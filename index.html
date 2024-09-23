@@ -12,7 +12,7 @@
     <div id="total-display"></div>
     <button id="done-transaction">Done Transaction</button>
     <button id="go-inventory">Go to Inventory Menu</button>
-    <button id="go-manage-bom">Go to Manage BOM</button>
+    <button id="go-manage-sku">Go to Manage SKU</button>
 
     <script>
         let totalAmount = 0;
@@ -91,8 +91,8 @@
         });
 
         // Navigate to Manage BOM
-        document.getElementById('go-manage-bom').addEventListener('click', () => {
-            window.location.href = 'manage_bom.html'; // Ensure you create this page
+        document.getElementById('go-manage-sku').addEventListener('click', () => {
+            window.location.href = 'manage_sku.html'; // Ensure you create this page
         });
     </script>
 </body>
