@@ -8,14 +8,11 @@
 </head>
 <body>
     <h1>Cashier Menu</h1>
-    <div id="header-buttons">
-        <button id="go-inventory">Go to Inventory Menu</button>
-        <button id="go-manage-sku">Go to Manage SKU</button>
-    </div>
-    <input type="text" id="search-input" placeholder="Search items..." onkeyup="filterItems()">
     <div id="item-list"></div>
     <div id="total-display"></div>
     <button id="done-transaction">Done Transaction</button>
+    <button id="go-inventory">Go to Inventory Menu</button>
+    <button id="go-manage-sku">Go to Manage SKU</button>
 
     <script>
         let totalAmount = 0;
@@ -29,19 +26,11 @@
                 data.forEach(product => {
                     const button = document.createElement('button');
                     button.className = 'item-button';
-                    button.innerText = `${product.name}`; // Assuming product.name is the item name
-                    button.onclick = () => fetchPriceAndAddToTransaction(product.name); // Use product name
+                    button.innerText = `${product[0]} - Rp${product[1]}`; // Assuming product[0] is name, product[1] is price
+                    button.onclick = () => addItemToTransaction(product[0], product[1]); // Use product name and price
                     itemList.appendChild(button);
                 });
             });
-
-        function fetchPriceAndAddToTransaction(itemName) {
-            fetch(`http://localhost:5000/get_price?item=${itemName}`)
-                .then(response => response.json())
-                .then(data => {
-                    addItemToTransaction(itemName, data.price); // Assuming data.price returns the correct price
-                });
-        }
 
         // Add item to transaction
         function addItemToTransaction(itemName, price) {
@@ -105,22 +94,6 @@
         document.getElementById('go-manage-sku').addEventListener('click', () => {
             window.location.href = 'manage_sku.html'; // Ensure you create this page
         });
-
-        // Filter items function
-        function filterItems() {
-            const input = document.getElementById('search-input');
-            const filter = input.value.toLowerCase();
-            const buttons = document.querySelectorAll('.item-button');
-
-            buttons.forEach(button => {
-                const itemName = button.innerText.toLowerCase();
-                if (itemName.includes(filter)) {
-                    button.style.display = '';
-                } else {
-                    button.style.display = 'none';
-                }
-            });
-        }
     </script>
 </body>
 </html>
