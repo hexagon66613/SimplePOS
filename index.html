@@ -6,6 +6,7 @@
     <title>Cashier Menu</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        /* Add some basic styles for layout */
         #header {
             display: flex;
             justify-content: space-between;
@@ -18,58 +19,108 @@
             padding: 10px;
             border: 1px solid #ccc;
         }
+        .item-button {
+            margin: 5px;
+            padding: 10px;
+            border: none;
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+        .item-button:hover {
+            background-color: #e0e0e0;
+        }
     </style>
 </head>
 <body>
     <div id="header">
         <h1>Cashier Menu</h1>
-        <button id="go-inventory">Go to Inventory Menu</button>
+        <div>
+            <button id="go-inventory">Go to Inventory Menu</button>
+            <button id="go-manage-sku">Go to Manage SKU</button>
+        </div>
     </div>
-    <input type="text" id="search-field" placeholder="Search for items...">
+    <input type="text" id="search-field" placeholder="Search products..." />
     <div id="item-list"></div>
-    <h2>Selected Items</h2>
     <div id="total-display"></div>
-    <button id="checkout-button">Checkout</button>
+    <button id="done-transaction">Done Transaction</button>
 
     <script>
-        let allItems = [];
-        let selectedItems = [];
         let totalAmount = 0;
+        let selectedItems = [];
+        let allItems = []; // Store all items for filtering
 
-        function fetchAvailableItems() {
-            fetch('http://localhost:5000/available_items')
-                .then(response => response.json())
-                .then(data => {
-                    const itemList = document.getElementById('item-list');
-                    itemList.innerHTML = '';
-                    data.forEach(product => {
-                        const itemName = product[0];
-                        const itemQty = product[1];
-                        const itemUoM = product[2];
-                        const itemPrice = itemQty > 0 ? 1000 : 0; // Example price; replace with actual logic
+        // Fetch available inventory items and BOM data
+        Promise.all([
+            fetch('http://localhost:5000/inventory').then(response => response.json()),
+            fetch('http://localhost:5000/bom').then(response => response.json())
+        ])
+        .then(([inventoryItems, bomData]) => {
+            const itemList = document.getElementById('item-list');
+            const priceMap = {}; // Map to hold prices based on item name and UoM
 
-                        const button = document.createElement('button');
-                        button.innerText = `${itemName} (${itemUoM}) - Rp${itemPrice}`;
-                        button.onclick = () => addItemToTransaction(itemName, itemUoM, itemPrice);
-                        itemList.appendChild(button);
-                    });
-                })
-                .catch(error => console.error('Error fetching available items:', error));
-        }
+            // Build priceMap from BOM data
+            bomData.forEach(item => {
+                const itemName = item[0];
+                const itemUoM = item[1];
+                const itemPrice = item[2];
+                if (!priceMap[itemName]) {
+                    priceMap[itemName] = {};
+                }
+                priceMap[itemName][itemUoM] = itemPrice; // Store price by UoM
+            });
 
-        function addItemToTransaction(itemName, uom, price) {
+            inventoryItems.forEach(product => {
+                const itemName = product[0]; // Assuming product[0] is the item name
+                const itemQty = product[1]; // Assuming product[1] is the quantity
+                const itemUoM = product[2]; // Assuming product[2] is the UoM
+
+                // Get the price from the priceMap based on item name and UoM
+                const itemPrice = priceMap[itemName]?.[itemUoM];
+
+                if (itemPrice) { // Only create a button if the price is available
+                    const button = document.createElement('button');
+                    button.className = 'item-button';
+                    button.innerText = `${itemName} (${itemUoM}) - Rp${itemPrice}`; // Show item name, UoM, and price
+                    button.onclick = () => addItemToTransaction(itemName, itemPrice, itemUoM);
+                    itemList.appendChild(button);
+                    allItems.push({ name: itemName, price: itemPrice, uom: itemUoM }); // Store all item details
+                }
+            });
+        });
+
+        // Search functionality
+        document.getElementById('search-field').addEventListener('input', (event) => {
+            const searchTerm = event.target.value.toLowerCase();
+            const itemList = document.getElementById('item-list');
+            itemList.innerHTML = ''; // Clear current list
+
+            allItems.forEach(item => {
+                if (item.name.toLowerCase().includes(searchTerm)) {
+                    const button = document.createElement('button');
+                    button.className = 'item-button';
+                    button.innerText = `${item.name} (${item.uom}) - Rp${item.price}`; // Show item name, UoM, and price
+                    button.onclick = () => addItemToTransaction(item.name, item.price, item.uom);
+                    itemList.appendChild(button);
+                }
+            });
+        });
+
+        // Add item to transaction
+        function addItemToTransaction(itemName, price, uom) {
             const existingItem = selectedItems.find(i => i.name === itemName && i.uom === uom);
             if (existingItem) {
                 existingItem.quantity++;
             } else {
-                selectedItems.push({ name: itemName, uom, quantity: 1, price });
+                selectedItems.push({ name: itemName, uom: uom, quantity: 1, price });
             }
             updateItemsDisplay();
         }
 
+        // Update the display of selected items
         function updateItemsDisplay() {
             const itemsDisplay = document.getElementById('total-display');
-            itemsDisplay.innerHTML = '';
+            itemsDisplay.innerHTML = ''; // Clear current display
+
             selectedItems.forEach(item => {
                 itemsDisplay.innerHTML += `${item.name} (${item.uom}) x${item.quantity} - Rp${item.price * item.quantity}<br>`;
             });
@@ -78,29 +129,44 @@
             document.getElementById('total-display').innerText = `Total: Rp${totalAmount}`;
         }
 
-        document.getElementById('checkout-button').addEventListener('click', () => {
-            fetch('http://localhost:5000/record_transaction', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ items: selectedItems, totalAmount })
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                selectedItems = [];
-                totalAmount = 0;
-                updateItemsDisplay();
-            })
-            .catch(error => console.error('Error recording transaction:', error));
+        // Handle done transaction
+        document.getElementById('done-transaction').addEventListener('click', () => {
+            if (totalAmount > 0) {
+                fetch('http://localhost:5000/record_transaction', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        items: selectedItems,
+                        totalAmount: totalAmount
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    // Clear selected items and total
+                    selectedItems = [];
+                    totalAmount = 0;
+                    updateItemsDisplay();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            } else {
+                alert('No transaction to record.');
+            }
         });
 
+        // Navigate to Inventory Menu
         document.getElementById('go-inventory').addEventListener('click', () => {
             window.location.href = 'inventory.html';
         });
 
-        fetchAvailableItems();
+        // Navigate to Manage BOM
+        document.getElementById('go-manage-sku').addEventListener('click', () => {
+            window.location.href = 'manage_sku.html'; // Ensure you create this page
+        });
     </script>
 </body>
 </html>
