@@ -71,8 +71,8 @@
 
             inventoryItems.forEach(product => {
                 const itemName = product[0]; // Assuming product[0] is the item name
-                const itemQty = product[1]; // Assuming product[1] is the quantity
-                const itemUoM = product[2]; // Assuming product[2] is the UoM
+                const itemQty = product[2]; // Assuming product[1] is the quantity
+                const itemUoM = product[1]; // Assuming product[2] is the UoM
 
                 // Get the price from the priceMap based on item name and UoM
                 const itemPrice = priceMap[itemName]?.[itemUoM];
