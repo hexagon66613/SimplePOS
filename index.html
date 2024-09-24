@@ -25,7 +25,7 @@
             margin-left: 10px;
         }
         #search-input {
-            margin-bottom: 20px;
+            margin-right: 10px;
             padding: 10px;
             width: 200px;
         }
@@ -74,8 +74,8 @@
                 data.forEach(product => {
                     const button = document.createElement('button');
                     button.className = 'item-button';
-                    button.innerText = `${product[0]} - Rp${product[1]}`; // Assuming product[0] is name, product[1] is price
-                    button.onclick = () => addItemToTransaction(product[0], product[1]); // Use product name and price
+                    button.innerText = `${product[0]} - Rp${product[1].toFixed(2)}`; // Ensure price is formatted correctly
+                    button.onclick = () => addItemToTransaction(product[0], parseFloat(product[1])); // Ensure price is a number
                     itemList.appendChild(button);
                 });
             });
@@ -97,11 +97,11 @@
             itemsDisplay.innerHTML = ''; // Clear current display
 
             selectedItems.forEach(item => {
-                itemsDisplay.innerHTML += `${item.name} x${item.quantity} - Rp${item.price * item.quantity}<br>`;
+                itemsDisplay.innerHTML += `${item.name} x${item.quantity} - Rp${(item.price * item.quantity).toFixed(2)}<br>`; // Ensure total price is formatted correctly
             });
 
             totalAmount = selectedItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-            document.getElementById('total-display').innerText = `Total: Rp${totalAmount}`;
+            document.getElementById('total-display').innerText = `Total: Rp${totalAmount.toFixed(2)}`; // Ensure total is formatted correctly
         }
 
         // Handle done transaction
