@@ -63,8 +63,9 @@
                     const inventoryItemSelect = document.getElementById('inventory-item');
                     data.forEach(item => {
                         const option = document.createElement('option');
-                        option.value = item[0]; // Assuming item[0] is the item name
-                        option.text = `${item[0]} (${item[1]})`; // Display item name and UoM
+                        option.value = item[0]; // Item name
+                        option.dataset.uom = item[1]; // Store UoM
+                        option.text = `${item[0]} (${item[1]})`; // Display name and UoM
                         inventoryItemSelect.appendChild(option);
                     });
                 })
@@ -93,7 +94,9 @@
         // Handle Inventory Form Submission
         document.getElementById('inventory-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const selectedItem = document.getElementById('inventory-item').value;
+            const inventoryItemSelect = document.getElementById('inventory-item');
+            const selectedItem = inventoryItemSelect.value;
+            const selectedUoM = inventoryItemSelect.selectedOptions[0].dataset.uom; // Get UoM
             const quantity = parseInt(document.getElementById('inventory-quantity').value);
 
             fetch('http://localhost:5000/add_inventory', {
@@ -101,7 +104,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ item: selectedItem, qty: quantity })
+                body: JSON.stringify({ item: selectedItem, qty: quantity, uom: selectedUoM }) // Include UoM
             })
             .then(response => response.json())
             .then(data => {
