@@ -38,6 +38,14 @@
         <button type="submit">Add BOM</button>
     </form>
 
+    <h2>Update BOM Price</h2>
+    <form id="update-price-form">
+        <input type="text" id="update-item" placeholder="Item Name" required>
+        <input type="text" id="update-uom" placeholder="Unit of Measure" required>
+        <input type="number" id="update-price" placeholder="New Price" required>
+        <button type="submit">Update Price</button>
+    </form>
+
     <input type="text" id="search-input" placeholder="Search..." onkeyup="filterTable()">
 
     <button id="go-inventory">Go to Inventory Menu</button>
@@ -98,6 +106,32 @@
             .catch(error => {
                 alert(error.message); // Show error message if any
                 console.error('Error adding BOM:', error);
+            });
+        });
+
+        // Handle Price Update Form Submission
+        document.getElementById('update-price-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const itemName = document.getElementById('update-item').value;
+            const uom = document.getElementById('update-uom').value;
+            const newPrice = parseFloat(document.getElementById('update-price').value);
+
+            fetch('http://localhost:5000/update_bom_price', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ item: itemName, uom: uom, price: newPrice })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                fetchBomData(); // Refresh BOM data
+                document.getElementById('update-price-form').reset();
+            })
+            .catch(error => {
+                alert(error.message); // Show error message if any
+                console.error('Error updating BOM price:', error);
             });
         });
 
