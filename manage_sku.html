@@ -133,7 +133,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ item: currentItem, uom: currentUOM, price: newPrice }) // Include UoM
+                body: JSON.stringify({ item: currentItem, uom: currentUOM, price: newPrice })
             })
             .then(response => response.json())
             .then(data => {
@@ -142,7 +142,7 @@
                 closePopup();
             })
             .catch(error => {
-                alert(error.message);
+                alert('Error updating BOM price: ' + error.message);
                 console.error('Error updating BOM price:', error);
             });
         });
@@ -178,7 +178,7 @@
                 document.getElementById('bom-form').reset();
             })
             .catch(error => {
-                alert(error.message); // Show error message if any
+                alert('Error adding BOM: ' + error.message);
                 console.error('Error adding BOM:', error);
             });
         });
