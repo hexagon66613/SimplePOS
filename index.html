@@ -26,7 +26,7 @@
                 data.forEach(product => {
                     const button = document.createElement('button');
                     button.className = 'item-button';
-                    button.innerText = ${product[0]} - Rp${product[1]}; // Assuming product[0] is name, product[1] is price
+                    button.innerText = `${product[0]} - Rp${product[1]}`; // Assuming product[0] is name, product[1] is price
                     button.onclick = () => addItemToTransaction(product[0], product[1]); // Use product name and price
                     itemList.appendChild(button);
                 });
@@ -49,11 +49,11 @@
             itemsDisplay.innerHTML = ''; // Clear current display
 
             selectedItems.forEach(item => {
-                itemsDisplay.innerHTML += ${item.name} x${item.quantity} - Rp${item.price * item.quantity}<br>;
+                itemsDisplay.innerHTML += `${item.name} x${item.quantity} - Rp${item.price * item.quantity}<br>`;
             });
 
             totalAmount = selectedItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-            document.getElementById('total-display').innerText = Total: Rp${totalAmount};
+            document.getElementById('total-display').innerText = `Total: Rp${totalAmount}`;
         }
 
         // Handle done transaction
