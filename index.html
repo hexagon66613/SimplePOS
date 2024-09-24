@@ -5,18 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cashier Menu</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Add some basic styles for layout */
+        #header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        #search-field {
+            margin-bottom: 20px;
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+    </style>
 </head>
 <body>
-    <h1>Cashier Menu</h1>
+    <div id="header">
+        <h1>Cashier Menu</h1>
+        <div>
+            <button id="go-inventory">Go to Inventory Menu</button>
+            <button id="go-manage-sku">Go to Manage SKU</button>
+        </div>
+    </div>
+    <input type="text" id="search-field" placeholder="Search products..." />
     <div id="item-list"></div>
     <div id="total-display"></div>
     <button id="done-transaction">Done Transaction</button>
-    <button id="go-inventory">Go to Inventory Menu</button>
-    <button id="go-manage-sku">Go to Manage SKU</button>
 
     <script>
         let totalAmount = 0;
         let selectedItems = [];
+        let allItems = []; // Store all items for filtering
 
         // Fetch available products with their prices
         Promise.all([
@@ -33,10 +54,28 @@
                 const itemPrice = priceMap[itemName]; // Get price from the mapped BOM data
 
                 if (itemPrice) { // Only create a button if the price is available
+                    allItems.push({ name: itemName, price: itemPrice });
                     const button = document.createElement('button');
                     button.className = 'item-button';
                     button.innerText = `${itemName} - Rp${itemPrice}`; // Show item name and price
                     button.onclick = () => addItemToTransaction(itemName, itemPrice);
+                    itemList.appendChild(button);
+                }
+            });
+        });
+
+        // Search functionality
+        document.getElementById('search-field').addEventListener('input', (event) => {
+            const searchTerm = event.target.value.toLowerCase();
+            const itemList = document.getElementById('item-list');
+            itemList.innerHTML = ''; // Clear current list
+
+            allItems.forEach(item => {
+                if (item.name.toLowerCase().includes(searchTerm)) {
+                    const button = document.createElement('button');
+                    button.className = 'item-button';
+                    button.innerText = `${item.name} - Rp${item.price}`; // Show item name and price
+                    button.onclick = () => addItemToTransaction(item.name, item.price);
                     itemList.appendChild(button);
                 }
             });
