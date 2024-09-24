@@ -51,13 +51,14 @@
             availableItems.forEach(product => {
                 const itemName = product[0]; // Assuming product[0] is the item name
                 const itemQty = product[1]; // Assuming product[1] is the quantity
+                const itemUoM = bomData.find(bomItem => bomItem[0] === itemName)[1]; // Get UoM
                 const itemPrice = priceMap[itemName]; // Get price from the mapped BOM data
 
                 if (itemPrice) { // Only create a button if the price is available
-                    allItems.push({ name: itemName, price: itemPrice });
+                    allItems.push({ name: itemName, uom: itemUoM, price: itemPrice });
                     const button = document.createElement('button');
                     button.className = 'item-button';
-                    button.innerText = `${itemName} - Rp${itemPrice}`; // Show item name and price
+                    button.innerText = `${itemName} (${itemUoM}) - Rp${itemPrice}`; // Show item name, UoM, and price
                     button.onclick = () => addItemToTransaction(itemName, itemPrice);
                     itemList.appendChild(button);
                 }
@@ -74,7 +75,7 @@
                 if (item.name.toLowerCase().includes(searchTerm)) {
                     const button = document.createElement('button');
                     button.className = 'item-button';
-                    button.innerText = `${item.name} - Rp${item.price}`; // Show item name and price
+                    button.innerText = `${item.name} (${item.uom}) - Rp${item.price}`; // Show item name, UoM, and price
                     button.onclick = () => addItemToTransaction(item.name, item.price);
                     itemList.appendChild(button);
                 }
