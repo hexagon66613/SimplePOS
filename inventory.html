@@ -64,7 +64,7 @@
                     data.forEach(item => {
                         const option = document.createElement('option');
                         option.value = item[0]; // Assuming item[0] is the item name
-                        option.text = item[0];   // Display the item name in the dropdown
+                        option.text = `${item[0]} (${item[1]})`; // Display item name and UoM
                         inventoryItemSelect.appendChild(option);
                     });
                 })
@@ -93,7 +93,7 @@
         // Handle Inventory Form Submission
         document.getElementById('inventory-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const itemName = document.getElementById('inventory-item').value;
+            const selectedItem = document.getElementById('inventory-item').value;
             const quantity = parseInt(document.getElementById('inventory-quantity').value);
 
             fetch('http://localhost:5000/add_inventory', {
@@ -101,7 +101,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ item: itemName, qty: quantity })
+                body: JSON.stringify({ item: selectedItem, qty: quantity })
             })
             .then(response => response.json())
             .then(data => {
