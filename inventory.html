@@ -9,7 +9,9 @@
 <body>
     <h1>Inventory Menu</h1>
     <form id="inventory-form">
-        <input type="text" id="inventory-item" placeholder="Item Name" required>
+        <select id="inventory-item" required>
+            <option value="">Select Item</option>
+        </select>
         <input type="number" id="inventory-quantity" placeholder="Quantity" required>
         <button type="submit">Add to Inventory</button>
     </form>
@@ -28,6 +30,22 @@
     </table>
 
     <script>
+        // Fetch SKU data for dropdown
+        function fetchSkuData() {
+            fetch('http://localhost:5000/bom') // Ensure this endpoint exists in app.py
+                .then(response => response.json())
+                .then(data => {
+                    const inventoryItemSelect = document.getElementById('inventory-item');
+                    data.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item[0]; // Assuming item[0] is the item name
+                        option.text = item[0];   // Display the item name in the dropdown
+                        inventoryItemSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching SKU data:', error));
+        }
+
         // Fetch Inventory data
         function fetchInventoryData() {
             fetch('http://localhost:5000/inventory') // Ensure this endpoint exists in app.py
@@ -69,7 +87,8 @@
             .catch(error => console.error('Error adding to inventory:', error));
         });
 
-        // Initial fetch
+        // Initial fetch for SKU and Inventory data
+        fetchSkuData();
         fetchInventoryData();
 
         // Navigate to Cashier Menu
