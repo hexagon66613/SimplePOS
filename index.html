@@ -24,13 +24,30 @@
             .then(data => {
                 const itemList = document.getElementById('item-list');
                 data.forEach(product => {
+                    const itemName = product[0]; // Assuming product[0] is the item name
                     const button = document.createElement('button');
                     button.className = 'item-button';
-                    button.innerText = `${product[0]} - Rp${product[1]}`; // Assuming product[0] is name, product[1] is price
-                    button.onclick = () => addItemToTransaction(product[0], product[1]); // Use product name and price
+                    button.innerText = itemName; // Display only the item name
+                    button.onclick = () => fetchPriceAndAddToTransaction(itemName); // Fetch price and add to transaction
                     itemList.appendChild(button);
                 });
             });
+
+        // Fetch the price from BOM and add the item to the transaction
+        function fetchPriceAndAddToTransaction(itemName) {
+            fetch(`http://localhost:5000/get_price?item=${encodeURIComponent(itemName)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.price) {
+                        addItemToTransaction(itemName, data.price); // Assuming data.price returns the correct price
+                    } else {
+                        alert('Price not found for this item.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching price:', error);
+                });
+        }
 
         // Add item to transaction
         function addItemToTransaction(itemName, price) {
