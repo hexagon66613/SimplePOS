@@ -95,7 +95,10 @@
                 fetchBomData(); // Refresh BOM data
                 document.getElementById('bom-form').reset();
             })
-            .catch(error => console.error('Error adding BOM:', error));
+            .catch(error => {
+                alert(error.message); // Show error message if any
+                console.error('Error adding BOM:', error);
+            });
         });
 
         // Delete BOM
