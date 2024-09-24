@@ -23,11 +23,24 @@
             margin: 5px;
             padding: 10px;
             border: none;
-            background-color: #f0f0f0;
+            background-color: green; /* Green background for product buttons */
+            color: white; /* White text color */
             cursor: pointer;
         }
         .item-button:hover {
-            background-color: #e0e0e0;
+            background-color: darkgreen; /* Darker green on hover */
+        }
+        #done-transaction {
+            margin-top: 20px;
+            padding: 15px; /* Larger padding for the payout button */
+            background-color: red; /* Red background for payout button */
+            color: white; /* White text color */
+            border: none;
+            font-size: 18px; /* Larger font size */
+            cursor: pointer;
+        }
+        #done-transaction:hover {
+            background-color: darkred; /* Darker red on hover */
         }
     </style>
 </head>
@@ -42,7 +55,7 @@
     <input type="text" id="search-field" placeholder="Search products..." />
     <div id="item-list"></div>
     <div id="total-display"></div>
-    <button id="done-transaction">Done Transaction</button>
+    <button id="done-transaction">Payout</button>
 
     <script>
         let totalAmount = 0;
