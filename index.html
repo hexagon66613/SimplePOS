@@ -18,36 +18,29 @@
         let totalAmount = 0;
         let selectedItems = [];
 
-        // Fetch available products from inventory
-        fetch('http://localhost:5000/available_items')
-            .then(response => response.json())
-            .then(data => {
-                const itemList = document.getElementById('item-list');
-                data.forEach(product => {
-                    const itemName = product[0]; // Assuming product[0] is the item name
+        // Fetch available products with their prices
+        Promise.all([
+            fetch('http://localhost:5000/available_items').then(response => response.json()),
+            fetch('http://localhost:5000/bom').then(response => response.json())
+        ])
+        .then(([availableItems, bomData]) => {
+            const itemList = document.getElementById('item-list');
+            const priceMap = Object.fromEntries(bomData.map(item => [item[0], item[2]])); // Map item names to prices
+
+            availableItems.forEach(product => {
+                const itemName = product[0]; // Assuming product[0] is the item name
+                const itemQty = product[1]; // Assuming product[1] is the quantity
+                const itemPrice = priceMap[itemName]; // Get price from the mapped BOM data
+
+                if (itemPrice) { // Only create a button if the price is available
                     const button = document.createElement('button');
                     button.className = 'item-button';
-                    button.innerText = itemName; // Display only the item name
-                    button.onclick = () => fetchPriceAndAddToTransaction(itemName); // Fetch price and add to transaction
+                    button.innerText = `${itemName} - Rp${itemPrice}`; // Show item name and price
+                    button.onclick = () => addItemToTransaction(itemName, itemPrice);
                     itemList.appendChild(button);
-                });
+                }
             });
-
-        // Fetch the price from BOM and add the item to the transaction
-        function fetchPriceAndAddToTransaction(itemName) {
-            fetch(`http://localhost:5000/get_price?item=${encodeURIComponent(itemName)}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.price) {
-                        addItemToTransaction(itemName, data.price); // Assuming data.price returns the correct price
-                    } else {
-                        alert('Price not found for this item.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching price:', error);
-                });
-        }
+        });
 
         // Add item to transaction
         function addItemToTransaction(itemName, price) {
