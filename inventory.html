@@ -40,7 +40,6 @@
     </form>
 
     <input type="text" id="search-input" placeholder="Search..." onkeyup="filterTable()">
-
     <button id="go-cashier">Go to Cashier Menu</button>
     <button id="go-manage-sku">Go to Manage SKU</button>
 
@@ -49,13 +48,13 @@
             <tr>
                 <th>Item</th>
                 <th>Quantity</th>
+                <th>UoM</th>
             </tr>
         </thead>
         <tbody id="inventory-body"></tbody>
     </table>
 
     <script>
-        // Fetch SKU data for dropdown
         function fetchSkuData() {
             fetch('http://localhost:5000/bom')
                 .then(response => response.json())
@@ -63,27 +62,27 @@
                     const inventoryItemSelect = document.getElementById('inventory-item');
                     data.forEach(item => {
                         const option = document.createElement('option');
-                        option.value = item[0]; // Item name
-                        option.dataset.uom = item[1]; // Store UoM
-                        option.text = `${item[0]} (${item[1]})`; // Display name and UoM
+                        option.value = item[0];
+                        option.dataset.uom = item[1];
+                        option.text = `${item[0]} (${item[1]})`;
                         inventoryItemSelect.appendChild(option);
                     });
                 })
                 .catch(error => console.error('Error fetching SKU data:', error));
         }
 
-        // Fetch Inventory data
         function fetchInventoryData() {
             fetch('http://localhost:5000/inventory')
                 .then(response => response.json())
                 .then(data => {
                     const inventoryBody = document.getElementById('inventory-body');
-                    inventoryBody.innerHTML = ''; // Clear existing rows
+                    inventoryBody.innerHTML = '';
                     data.forEach(item => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
                             <td>${item[0]}</td>
                             <td>${item[1]}</td>
+                            <td>${item[2]}</td>
                         `;
                         inventoryBody.appendChild(row);
                     });
@@ -91,12 +90,11 @@
                 .catch(error => console.error('Error fetching inventory data:', error));
         }
 
-        // Handle Inventory Form Submission
         document.getElementById('inventory-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const inventoryItemSelect = document.getElementById('inventory-item');
             const selectedItem = inventoryItemSelect.value;
-            const selectedUoM = inventoryItemSelect.selectedOptions[0].dataset.uom; // Get UoM
+            const selectedUoM = inventoryItemSelect.selectedOptions[0].dataset.uom;
             const quantity = parseInt(document.getElementById('inventory-quantity').value);
 
             fetch('http://localhost:5000/add_inventory', {
@@ -104,18 +102,17 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ item: selectedItem, qty: quantity, uom: selectedUoM }) // Include UoM
+                body: JSON.stringify({ item: selectedItem, qty: quantity, uom: selectedUoM })
             })
             .then(response => response.json())
             .then(data => {
                 alert(data.message);
-                fetchInventoryData(); // Refresh inventory data
+                fetchInventoryData();
                 document.getElementById('inventory-form').reset();
             })
             .catch(error => console.error('Error adding to inventory:', error));
         });
 
-        // Filter table function
         function filterTable() {
             const input = document.getElementById('search-input');
             const filter = input.value.toLowerCase();
@@ -132,18 +129,15 @@
             });
         }
 
-        // Initial fetch for SKU and Inventory data
         fetchSkuData();
         fetchInventoryData();
 
-        // Navigate to Cashier Menu
         document.getElementById('go-cashier').addEventListener('click', () => {
             window.location.href = 'index.html';
         });
 
-        // Navigate to Manage BOM
         document.getElementById('go-manage-sku').addEventListener('click', () => {
-            window.location.href = 'manage_sku.html'; // Ensure this page exists
+            window.location.href = 'manage_sku.html';
         });
     </script>
 </body>
