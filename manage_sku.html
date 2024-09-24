@@ -80,6 +80,7 @@
     <div class="popup" id="price-popup">
         <h2>Update Price</h2>
         <input type="text" id="update-item" placeholder="Item Name" readonly>
+        <input type="text" id="update-uom" placeholder="Unit of Measure" required>
         <input type="number" id="update-price" placeholder="New Price" required>
         <button id="submit-price">Submit</button>
         <button id="close-popup">Cancel</button>
@@ -87,6 +88,7 @@
 
     <script>
         let currentItem = '';
+        let currentUOM = '';
 
         // Fetch BOM data
         function fetchBomData() {
@@ -102,8 +104,8 @@
                             <td>${bom[1]}</td>
                             <td>Rp${bom[2]}</td>
                             <td>
-                                <button onclick="showPricePopup('${bom[0]}')">Update Price</button>
-                                <button onclick="deleteBom('${bom[0]}')">Delete</button>
+                                <button onclick="showPricePopup('${bom[0]}', '${bom[1]}')">Update Price</button>
+                                <button onclick="deleteBom('${bom[0]}', '${bom[1]}')">Delete</button>
                             </td>
                         `;
                         bomBody.appendChild(row);
@@ -113,9 +115,11 @@
         }
 
         // Show price update popup
-        function showPricePopup(itemName) {
+        function showPricePopup(itemName, uom) {
             currentItem = itemName;
+            currentUOM = uom;
             document.getElementById('update-item').value = itemName;
+            document.getElementById('update-uom').value = uom;
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('price-popup').style.display = 'block';
         }
@@ -129,7 +133,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ item: currentItem, price: newPrice })
+                body: JSON.stringify({ item: currentItem, uom: currentUOM, price: newPrice }) // Include UoM
             })
             .then(response => response.json())
             .then(data => {
@@ -148,6 +152,7 @@
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('price-popup').style.display = 'none';
             document.getElementById('update-price').value = ''; // Reset input
+            document.getElementById('update-uom').value = ''; // Reset UoM input
         }
 
         document.getElementById('close-popup').addEventListener('click', closePopup);
@@ -179,7 +184,7 @@
         });
 
         // Delete BOM
-        function deleteBom(itemName) {
+        function deleteBom(itemName, uom) {
             fetch(`http://localhost:5000/delete_bom/${itemName}`, {
                 method: 'DELETE'
             })
