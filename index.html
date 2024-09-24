@@ -39,28 +39,41 @@
         let selectedItems = [];
         let allItems = []; // Store all items for filtering
 
-        // Fetch available products with their prices
+        // Fetch available inventory items and BOM data
         Promise.all([
-            fetch('http://localhost:5000/available_items').then(response => response.json()),
+            fetch('http://localhost:5000/inventory').then(response => response.json()),
             fetch('http://localhost:5000/bom').then(response => response.json())
         ])
-        .then(([availableItems, bomData]) => {
+        .then(([inventoryItems, bomData]) => {
             const itemList = document.getElementById('item-list');
-            const priceMap = Object.fromEntries(bomData.map(item => [item[0], item[2]])); // Map item names to prices
+            const priceMap = {}; // Map to hold prices based on item name and UoM
 
-            availableItems.forEach(product => {
+            // Build priceMap from BOM data
+            bomData.forEach(item => {
+                const itemName = item[0];
+                const itemUoM = item[1];
+                const itemPrice = item[2];
+                if (!priceMap[itemName]) {
+                    priceMap[itemName] = {};
+                }
+                priceMap[itemName][itemUoM] = itemPrice; // Store price by UoM
+            });
+
+            inventoryItems.forEach(product => {
                 const itemName = product[0]; // Assuming product[0] is the item name
                 const itemQty = product[1]; // Assuming product[1] is the quantity
-                const itemUoM = bomData.find(bomItem => bomItem[0] === itemName)[1]; // Get UoM
-                const itemPrice = priceMap[itemName]; // Get price from the mapped BOM data
+                const itemUoM = product[2]; // Assuming product[2] is the UoM
+
+                // Get the price from the priceMap based on item name and UoM
+                const itemPrice = priceMap[itemName]?.[itemUoM];
 
                 if (itemPrice) { // Only create a button if the price is available
-                    allItems.push({ name: itemName, uom: itemUoM, price: itemPrice });
                     const button = document.createElement('button');
                     button.className = 'item-button';
                     button.innerText = `${itemName} (${itemUoM}) - Rp${itemPrice}`; // Show item name, UoM, and price
-                    button.onclick = () => addItemToTransaction(itemName, itemPrice);
+                    button.onclick = () => addItemToTransaction(itemName, itemPrice, itemUoM);
                     itemList.appendChild(button);
+                    allItems.push({ name: itemName, price: itemPrice, uom: itemUoM }); // Store all item details
                 }
             });
         });
@@ -76,19 +89,19 @@
                     const button = document.createElement('button');
                     button.className = 'item-button';
                     button.innerText = `${item.name} (${item.uom}) - Rp${item.price}`; // Show item name, UoM, and price
-                    button.onclick = () => addItemToTransaction(item.name, item.price);
+                    button.onclick = () => addItemToTransaction(item.name, item.price, item.uom);
                     itemList.appendChild(button);
                 }
             });
         });
 
         // Add item to transaction
-        function addItemToTransaction(itemName, price) {
-            const existingItem = selectedItems.find(i => i.name === itemName);
+        function addItemToTransaction(itemName, price, uom) {
+            const existingItem = selectedItems.find(i => i.name === itemName && i.uom === uom);
             if (existingItem) {
                 existingItem.quantity++;
             } else {
-                selectedItems.push({ name: itemName, quantity: 1, price });
+                selectedItems.push({ name: itemName, uom: uom, quantity: 1, price });
             }
             updateItemsDisplay();
         }
@@ -99,7 +112,7 @@
             itemsDisplay.innerHTML = ''; // Clear current display
 
             selectedItems.forEach(item => {
-                itemsDisplay.innerHTML += `${item.name} x${item.quantity} - Rp${item.price * item.quantity}<br>`;
+                itemsDisplay.innerHTML += `${item.name} (${item.uom}) x${item.quantity} - Rp${item.price * item.quantity}<br>`;
             });
 
             totalAmount = selectedItems.reduce((total, item) => total + (item.price * item.quantity), 0);
