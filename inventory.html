@@ -5,6 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory Menu</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        #search-input {
+            margin: 20px 0;
+            padding: 10px;
+            width: 200px;
+        }
+    </style>
 </head>
 <body>
     <h1>Inventory Menu</h1>
@@ -15,6 +38,8 @@
         <input type="number" id="inventory-quantity" placeholder="Quantity" required>
         <button type="submit">Add to Inventory</button>
     </form>
+
+    <input type="text" id="search-input" placeholder="Search..." onkeyup="filterTable()">
 
     <button id="go-cashier">Go to Cashier Menu</button>
     <button id="go-manage-sku">Go to Manage SKU</button>
@@ -32,7 +57,7 @@
     <script>
         // Fetch SKU data for dropdown
         function fetchSkuData() {
-            fetch('http://localhost:5000/bom') // Ensure this endpoint exists in app.py
+            fetch('http://localhost:5000/bom')
                 .then(response => response.json())
                 .then(data => {
                     const inventoryItemSelect = document.getElementById('inventory-item');
@@ -48,7 +73,7 @@
 
         // Fetch Inventory data
         function fetchInventoryData() {
-            fetch('http://localhost:5000/inventory') // Ensure this endpoint exists in app.py
+            fetch('http://localhost:5000/inventory')
                 .then(response => response.json())
                 .then(data => {
                     const inventoryBody = document.getElementById('inventory-body');
@@ -86,6 +111,23 @@
             })
             .catch(error => console.error('Error adding to inventory:', error));
         });
+
+        // Filter table function
+        function filterTable() {
+            const input = document.getElementById('search-input');
+            const filter = input.value.toLowerCase();
+            const rows = document.querySelectorAll('#inventory-table tbody tr');
+
+            rows.forEach(row => {
+                const cells = row.getElementsByTagName('td');
+                const itemName = cells[0].textContent.toLowerCase();
+                if (itemName.includes(filter)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
 
         // Initial fetch for SKU and Inventory data
         fetchSkuData();
