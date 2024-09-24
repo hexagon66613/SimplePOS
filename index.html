@@ -5,62 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cashier Menu</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            padding: 20px;
-        }
-        h1 {
-            margin-bottom: 10px;
-        }
-        .header-buttons {
-            display: flex;
-            justify-content: flex-end;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        .header-buttons button {
-            margin-left: 10px;
-        }
-        #search-input {
-            margin-right: 10px;
-            padding: 10px;
-            width: 200px;
-        }
-        #item-list {
-            display: flex;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-        .item-button {
-            margin: 5px;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .item-button:hover {
-            background-color: #45a049;
-        }
-        #total-display {
-            margin-bottom: 20px;
-        }
-    </style>
 </head>
 <body>
     <h1>Cashier Menu</h1>
-    <div class="header-buttons">
-        <input type="text" id="search-input" placeholder="Search..." onkeyup="filterItems()">
-        <button id="go-inventory">Go to Inventory Menu</button>
-        <button id="go-manage-sku">Go to Manage SKU</button>
-    </div>
     <div id="item-list"></div>
     <div id="total-display"></div>
     <button id="done-transaction">Done Transaction</button>
+    <button id="go-inventory">Go to Inventory Menu</button>
+    <button id="go-manage-sku">Go to Manage SKU</button>
 
     <script>
         let totalAmount = 0;
@@ -74,7 +26,7 @@
                 data.forEach(product => {
                     const button = document.createElement('button');
                     button.className = 'item-button';
-                    button.innerText = `${product[0]} - Rp${product[1]}`; // Corrected template literals
+                    button.innerText = ${product[0]} - Rp${product[1]}; // Assuming product[0] is name, product[1] is price
                     button.onclick = () => addItemToTransaction(product[0], product[1]); // Use product name and price
                     itemList.appendChild(button);
                 });
@@ -97,11 +49,11 @@
             itemsDisplay.innerHTML = ''; // Clear current display
 
             selectedItems.forEach(item => {
-                itemsDisplay.innerHTML += `${item.name} x${item.quantity} - Rp${item.price * item.quantity}<br>`;
+                itemsDisplay.innerHTML += ${item.name} x${item.quantity} - Rp${item.price * item.quantity}<br>;
             });
 
             totalAmount = selectedItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-            document.getElementById('total-display').innerText = `Total: Rp${totalAmount}`;
+            document.getElementById('total-display').innerText = Total: Rp${totalAmount};
         }
 
         // Handle done transaction
@@ -142,22 +94,6 @@
         document.getElementById('go-manage-sku').addEventListener('click', () => {
             window.location.href = 'manage_sku.html'; // Ensure you create this page
         });
-
-        // Filter items function
-        function filterItems() {
-            const input = document.getElementById('search-input');
-            const filter = input.value.toLowerCase();
-            const buttons = document.querySelectorAll('.item-button');
-
-            buttons.forEach(button => {
-                const itemName = button.innerText.toLowerCase();
-                if (itemName.includes(filter)) {
-                    button.style.display = '';
-                } else {
-                    button.style.display = 'none';
-                }
-            });
-        }
     </script>
 </body>
 </html>
