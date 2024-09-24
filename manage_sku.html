@@ -5,6 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage BOM</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        #search-input {
+            margin: 20px 0;
+            padding: 10px;
+            width: 200px;
+        }
+    </style>
 </head>
 <body>
     <h1>Manage BOM</h1>
@@ -14,6 +37,8 @@
         <input type="number" id="bom-price" placeholder="Price" required>
         <button type="submit">Add BOM</button>
     </form>
+
+    <input type="text" id="search-input" placeholder="Search..." onkeyup="filterTable()">
 
     <button id="go-inventory">Go to Inventory Menu</button>
     <table id="bom-table">
@@ -84,6 +109,23 @@
                 fetchBomData(); // Refresh BOM data
             })
             .catch(error => console.error('Error deleting BOM:', error));
+        }
+
+        // Filter table function
+        function filterTable() {
+            const input = document.getElementById('search-input');
+            const filter = input.value.toLowerCase();
+            const rows = document.querySelectorAll('#bom-table tbody tr');
+
+            rows.forEach(row => {
+                const cells = row.getElementsByTagName('td');
+                const itemName = cells[0].textContent.toLowerCase();
+                if (itemName.includes(filter)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
         }
 
         // Initial fetch
