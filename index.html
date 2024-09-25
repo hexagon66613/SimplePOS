@@ -6,73 +6,80 @@
     <title>Cashier Menu</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Add some basic styles for layout */
+        body {
+            font-family: Arial, sans-serif;
+        }
         #header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         #search-field {
-            margin-bottom: 20px;
             width: 100%;
-            padding: 10px;
+            padding: 8px;
             border: 1px solid #ccc;
+            margin-bottom: 10px;
         }
         .item-button {
-            margin: 5px;
-            padding: 10px;
+            margin: 2px;
+            padding: 8px;
             border: none;
-            background-color: green; /* Green background for product buttons */
-            color: white; /* White text color */
+            background-color: green;
+            color: white;
             cursor: pointer;
+            font-size: 14px;
         }
         .item-button:hover {
-            background-color: darkgreen; /* Darker green on hover */
+            background-color: darkgreen;
         }
         #done-transaction {
-            margin-top: 20px;
-            padding: 15px; /* Larger padding for the payout button */
-            background-color: red; /* Red background for payout button */
-            color: white; /* White text color */
+            padding: 10px;
+            background-color: red;
+            color: white;
             border: none;
-            font-size: 18px; /* Larger font size */
+            font-size: 16px;
             cursor: pointer;
+            margin-top: 10px;
         }
         #done-transaction:hover {
-            background-color: darkred; /* Darker red on hover */
+            background-color: darkred;
         }
         #selected-items {
-            margin-top: 20px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
         }
         .selected-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: 5px 0;
+            margin: 3px 0;
         }
         .remove-item {
             background-color: red;
             color: white;
             border: none;
             cursor: pointer;
-            padding: 5px;
+            padding: 4px 6px;
+            font-size: 12px;
         }
         .remove-item:hover {
             background-color: darkred;
         }
         .quantity-input {
-            width: 50px;
-            margin-left: 10px;
+            width: 40px;
+            margin-left: 5px;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
     <div id="header">
-        <h1>Cashier Menu</h1>
+        <h1 style="font-size: 20px;">Cashier Menu</h1>
         <div>
-            <button id="go-inventory">Go to Inventory Menu</button>
-            <button id="go-manage-sku">Go to Manage SKU</button>
+            <button id="go-inventory" style="font-size: 12px;">Go to Inventory</button>
+            <button id="go-manage-sku" style="font-size: 12px;">Manage SKU</button>
         </div>
     </div>
     <input type="text" id="search-field" placeholder="Search products..." />
@@ -84,65 +91,55 @@
     <script>
         let totalAmount = 0;
         let selectedItems = [];
-        let allItems = []; // Store all items for filtering
+        let allItems = [];
 
-        // Fetch available inventory items and BOM data
         Promise.all([
             fetch('http://localhost:5000/inventory').then(response => response.json()),
             fetch('http://localhost:5000/bom').then(response => response.json())
         ])
         .then(([inventoryItems, bomData]) => {
             const itemList = document.getElementById('item-list');
-            const priceMap = {}; // Map to hold prices based on item name and UoM
+            const priceMap = {};
 
-            // Build priceMap from BOM data
             bomData.forEach(item => {
-                const itemName = item[0];
-                const itemUoM = item[1];
-                const itemPrice = item[2];
+                const [itemName, itemUoM, itemPrice] = item;
                 if (!priceMap[itemName]) {
                     priceMap[itemName] = {};
                 }
-                priceMap[itemName][itemUoM] = itemPrice; // Store price by UoM
+                priceMap[itemName][itemUoM] = itemPrice;
             });
 
             inventoryItems.forEach(product => {
-                const itemName = product[0]; // Assuming product[0] is the item name
-                const itemQty = product[1]; // Assuming product[1] is the quantity
-                const itemUoM = product[2]; // Assuming product[2] is the UoM
-
-                // Get the price from the priceMap based on item name and UoM
+                const [itemName, itemQty, itemUoM] = product;
                 const itemPrice = priceMap[itemName]?.[itemUoM];
 
-                if (itemPrice) { // Only create a button if the price is available
+                if (itemPrice) {
                     const button = document.createElement('button');
                     button.className = 'item-button';
-                    button.innerText = `${itemName} (${itemUoM}) - Rp${itemPrice}`; // Show item name, UoM, and price
+                    button.innerText = `${itemName} (${itemUoM}) - Rp${itemPrice}`;
                     button.onclick = () => addItemToTransaction(itemName, itemPrice, itemUoM);
                     itemList.appendChild(button);
-                    allItems.push({ name: itemName, price: itemPrice, uom: itemUoM }); // Store all item details
+                    allItems.push({ name: itemName, price: itemPrice, uom: itemUoM });
                 }
             });
         });
 
-        // Search functionality
         document.getElementById('search-field').addEventListener('input', (event) => {
             const searchTerm = event.target.value.toLowerCase();
             const itemList = document.getElementById('item-list');
-            itemList.innerHTML = ''; // Clear current list
+            itemList.innerHTML = '';
 
             allItems.forEach(item => {
                 if (item.name.toLowerCase().includes(searchTerm)) {
                     const button = document.createElement('button');
                     button.className = 'item-button';
-                    button.innerText = `${item.name} (${item.uom}) - Rp${item.price}`; // Show item name, UoM, and price
+                    button.innerText = `${item.name} (${item.uom}) - Rp${item.price}`;
                     button.onclick = () => addItemToTransaction(item.name, item.price, item.uom);
                     itemList.appendChild(button);
                 }
             });
         });
 
-        // Add item to transaction
         function addItemToTransaction(itemName, price, uom) {
             const existingItem = selectedItems.find(i => i.name === itemName && i.uom === uom);
             if (existingItem) {
@@ -153,10 +150,9 @@
             updateItemsDisplay();
         }
 
-        // Update the display of selected items
         function updateItemsDisplay() {
             const itemsDisplay = document.getElementById('selected-items');
-            itemsDisplay.innerHTML = ''; // Clear current display
+            itemsDisplay.innerHTML = '';
 
             selectedItems.forEach(item => {
                 const itemDiv = document.createElement('div');
@@ -164,7 +160,7 @@
                 itemDiv.innerHTML = `
                     ${item.name} (${item.uom}) 
                     <input type="number" class="quantity-input" value="${item.quantity}" min="1" onchange="updateQuantity('${item.name}', '${item.uom}', this.value)" />
-                    <button class="remove-item" onclick="removeItem('${item.name}', '${item.uom}')">Remove</button>
+                    <button class="remove-item" onclick="removeItem('${item.name}', '${item.uom}')">X</button>
                 `;
                 itemsDisplay.appendChild(itemDiv);
             });
@@ -173,7 +169,6 @@
             document.getElementById('total-display').innerText = `Total: Rp${totalAmount}`;
         }
 
-        // Update quantity of selected item
         function updateQuantity(name, uom, quantity) {
             const item = selectedItems.find(i => i.name === name && i.uom === uom);
             if (item) {
@@ -182,13 +177,11 @@
             updateItemsDisplay();
         }
 
-        // Remove item from selected items
         function removeItem(name, uom) {
             selectedItems = selectedItems.filter(i => !(i.name === name && i.uom === uom));
             updateItemsDisplay();
         }
 
-        // Handle done transaction
         document.getElementById('done-transaction').addEventListener('click', () => {
             if (totalAmount > 0) {
                 fetch('http://localhost:5000/record_transaction', {
@@ -204,7 +197,6 @@
                 .then(response => response.json())
                 .then(data => {
                     alert(data.message);
-                    // Clear selected items and total
                     selectedItems = [];
                     totalAmount = 0;
                     updateItemsDisplay();
@@ -217,14 +209,12 @@
             }
         });
 
-        // Navigate to Inventory Menu
         document.getElementById('go-inventory').addEventListener('click', () => {
             window.location.href = 'inventory.html';
         });
 
-        // Navigate to Manage BOM
         document.getElementById('go-manage-sku').addEventListener('click', () => {
-            window.location.href = 'manage_sku.html'; // Ensure you create this page
+            window.location.href = 'manage_sku.html';
         });
     </script>
 </body>
