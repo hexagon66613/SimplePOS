@@ -55,7 +55,18 @@
             justify-content: space-between;
             align-items: center;
             margin: 5px 0;
-            font-family: monospace; /* Use monospace for better alignment */
+        }
+        .item-name {
+            flex: 1; /* Allow item name to take available space */
+            text-align: left; /* Align text to the left */
+        }
+        .quantity-container {
+            display: flex;
+            align-items: center;
+        }
+        .quantity-input {
+            width: 50px; /* Fixed width for quantity input */
+            margin-left: 10px;
         }
         .remove-item {
             background-color: red;
@@ -66,10 +77,6 @@
         }
         .remove-item:hover {
             background-color: darkred;
-        }
-        .quantity-input {
-            width: 50px;
-            margin-left: 10px;
         }
     </style>
 </head>
@@ -168,9 +175,11 @@
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'selected-item';
                 itemDiv.innerHTML = `
-                    ${item.name} (${item.uom}) 
-                    <input type="number" class="quantity-input" value="${item.quantity}" min="1" onchange="updateQuantity('${item.name}', '${item.uom}', this.value)" />
-                    <button class="remove-item" onclick="removeItem('${item.name}', '${item.uom}')">Remove</button>
+                    <div class="item-name">${item.name} (${item.uom})</div>
+                    <div class="quantity-container">
+                        <input type="number" class="quantity-input" value="${item.quantity}" min="1" onchange="updateQuantity('${item.name}', '${item.uom}', this.value)" />
+                        <button class="remove-item" onclick="removeItem('${item.name}', '${item.uom}')">Remove</button>
+                    </div>
                 `;
                 itemsDisplay.appendChild(itemDiv);
             });
