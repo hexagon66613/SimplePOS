@@ -78,6 +78,16 @@
         .remove-item:hover {
             background-color: darkred;
         }
+        .item-price {
+            min-width: 100px; /* Set a minimum width for the price display */
+            text-align: right; /* Align price to the right */
+        }
+        .total-amount {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold; /* Make total amount bold */
+            margin-top: 10px; /* Add some spacing above total */
+        }
     </style>
 </head>
 <body>
@@ -91,7 +101,6 @@
     <input type="text" id="search-field" placeholder="Search products..." />
     <div id="item-list"></div>
     <div id="selected-items"></div>
-    <div id="total-display"></div>
     <button id="done-transaction">Payout</button>
 
     <script>
@@ -180,12 +189,21 @@
                         <input type="number" class="quantity-input" value="${item.quantity}" min="1" onchange="updateQuantity('${item.name}', '${item.uom}', this.value)" />
                         <button class="remove-item" onclick="removeItem('${item.name}', '${item.uom}')">Remove</button>
                     </div>
+                    <div class="item-price">Rp${(item.price * item.quantity).toLocaleString()}</div>
                 `;
                 itemsDisplay.appendChild(itemDiv);
             });
 
             totalAmount = selectedItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-            document.getElementById('total-display').innerText = `Total: Rp${totalAmount}`;
+            
+            const totalDiv = document.createElement('div');
+            totalDiv.className = 'total-amount';
+            totalDiv.innerHTML = `
+                <div class="item-name">Total</div>
+                <div style="flex: 1;"></div> <!-- Spacer -->
+                <div class="item-price">Rp${totalAmount.toLocaleString()}</div>
+            `;
+            itemsDisplay.appendChild(totalDiv);
         }
 
         // Update quantity of selected item
