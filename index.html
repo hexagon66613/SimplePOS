@@ -24,7 +24,7 @@
             margin-bottom: 10px;
         }
         .item-button {
-            width: calc(100% - 12px); /* Make button fill the width */
+            width: calc(100% - 12px);
             margin: 2px;
             padding: 8px;
             border: none;
@@ -44,25 +44,27 @@
             font-size: 16px;
             cursor: pointer;
             margin-top: 10px;
-            width: 100%; /* Make the button full width */
+            width: 100%;
         }
         #selected-items {
             margin-top: 10px;
             max-height: 200px;
             overflow-y: auto;
-            display: flex; /* Use flexbox for horizontal layout */
-            flex-wrap: wrap; /* Allow items to wrap */
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+            align-items: flex-start; /* Align items to the start */
         }
         .selected-item {
             display: flex;
             align-items: center;
-            margin: 5px;
+            margin: 5px 0; /* Margin between items */
             padding: 5px;
             border: 1px solid #ccc;
             border-radius: 5px;
             background-color: #f9f9f9;
-            width: calc(48% - 10px); /* Adjust item width */
+            width: 100%; /* Full width for selected items */
             justify-content: space-between; /* Space between content */
+            max-width: 300px; /* Set a max width for compactness */
         }
         .remove-item {
             background-color: red;
