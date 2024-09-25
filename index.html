@@ -23,24 +23,47 @@
             margin: 5px;
             padding: 10px;
             border: none;
-            background-color: green;
-            color: white;
+            background-color: green; /* Green background for product buttons */
+            color: white; /* White text color */
             cursor: pointer;
         }
         .item-button:hover {
-            background-color: darkgreen;
+            background-color: darkgreen; /* Darker green on hover */
         }
         #done-transaction {
             margin-top: 20px;
-            padding: 15px;
-            background-color: red;
-            color: white;
+            padding: 15px; /* Larger padding for the payout button */
+            background-color: red; /* Red background for payout button */
+            color: white; /* White text color */
             border: none;
-            font-size: 18px;
+            font-size: 18px; /* Larger font size */
             cursor: pointer;
         }
         #done-transaction:hover {
+            background-color: darkred; /* Darker red on hover */
+        }
+        #selected-items {
+            margin-top: 20px;
+        }
+        .selected-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .remove-item {
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+        .remove-item:hover {
             background-color: darkred;
+        }
+        .quantity-input {
+            width: 50px;
+            margin-left: 10px;
         }
     </style>
 </head>
@@ -54,13 +77,14 @@
     </div>
     <input type="text" id="search-field" placeholder="Search products..." />
     <div id="item-list"></div>
+    <div id="selected-items"></div>
     <div id="total-display"></div>
     <button id="done-transaction">Payout</button>
 
     <script>
         let totalAmount = 0;
         let selectedItems = [];
-        let allItems = [];
+        let allItems = []; // Store all items for filtering
 
         // Fetch available inventory items and BOM data
         Promise.all([
@@ -69,7 +93,7 @@
         ])
         .then(([inventoryItems, bomData]) => {
             const itemList = document.getElementById('item-list');
-            const priceMap = {};
+            const priceMap = {}; // Map to hold prices based on item name and UoM
 
             // Build priceMap from BOM data
             bomData.forEach(item => {
@@ -79,43 +103,46 @@
                 if (!priceMap[itemName]) {
                     priceMap[itemName] = {};
                 }
-                priceMap[itemName][itemUoM] = itemPrice;
+                priceMap[itemName][itemUoM] = itemPrice; // Store price by UoM
             });
 
             inventoryItems.forEach(product => {
-                const itemName = product[0];
-                const itemQty = product[1];
-                const itemUoM = product[2];
+                const itemName = product[0]; // Assuming product[0] is the item name
+                const itemQty = product[1]; // Assuming product[1] is the quantity
+                const itemUoM = product[2]; // Assuming product[2] is the UoM
 
+                // Get the price from the priceMap based on item name and UoM
                 const itemPrice = priceMap[itemName]?.[itemUoM];
 
-                if (itemPrice) {
+                if (itemPrice) { // Only create a button if the price is available
                     const button = document.createElement('button');
                     button.className = 'item-button';
-                    button.innerText = `${itemName} (${itemUoM}) - Rp${itemPrice}`;
+                    button.innerText = `${itemName} (${itemUoM}) - Rp${itemPrice}`; // Show item name, UoM, and price
                     button.onclick = () => addItemToTransaction(itemName, itemPrice, itemUoM);
                     itemList.appendChild(button);
-                    allItems.push({ name: itemName, price: itemPrice, uom: itemUoM });
+                    allItems.push({ name: itemName, price: itemPrice, uom: itemUoM }); // Store all item details
                 }
             });
         });
 
+        // Search functionality
         document.getElementById('search-field').addEventListener('input', (event) => {
             const searchTerm = event.target.value.toLowerCase();
             const itemList = document.getElementById('item-list');
-            itemList.innerHTML = '';
+            itemList.innerHTML = ''; // Clear current list
 
             allItems.forEach(item => {
                 if (item.name.toLowerCase().includes(searchTerm)) {
                     const button = document.createElement('button');
                     button.className = 'item-button';
-                    button.innerText = `${item.name} (${item.uom}) - Rp${item.price}`;
+                    button.innerText = `${item.name} (${item.uom}) - Rp${item.price}`; // Show item name, UoM, and price
                     button.onclick = () => addItemToTransaction(item.name, item.price, item.uom);
                     itemList.appendChild(button);
                 }
             });
         });
 
+        // Add item to transaction
         function addItemToTransaction(itemName, price, uom) {
             const existingItem = selectedItems.find(i => i.name === itemName && i.uom === uom);
             if (existingItem) {
@@ -126,18 +153,42 @@
             updateItemsDisplay();
         }
 
+        // Update the display of selected items
         function updateItemsDisplay() {
-            const itemsDisplay = document.getElementById('total-display');
-            itemsDisplay.innerHTML = '';
+            const itemsDisplay = document.getElementById('selected-items');
+            itemsDisplay.innerHTML = ''; // Clear current display
 
             selectedItems.forEach(item => {
-                itemsDisplay.innerHTML += `${item.name} (${item.uom}) x${item.quantity} - Rp${item.price * item.quantity}<br>`;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'selected-item';
+                itemDiv.innerHTML = `
+                    ${item.name} (${item.uom}) 
+                    <input type="number" class="quantity-input" value="${item.quantity}" min="1" onchange="updateQuantity('${item.name}', '${item.uom}', this.value)" />
+                    <button class="remove-item" onclick="removeItem('${item.name}', '${item.uom}')">Remove</button>
+                `;
+                itemsDisplay.appendChild(itemDiv);
             });
 
             totalAmount = selectedItems.reduce((total, item) => total + (item.price * item.quantity), 0);
             document.getElementById('total-display').innerText = `Total: Rp${totalAmount}`;
         }
 
+        // Update quantity of selected item
+        function updateQuantity(name, uom, quantity) {
+            const item = selectedItems.find(i => i.name === name && i.uom === uom);
+            if (item) {
+                item.quantity = parseInt(quantity);
+            }
+            updateItemsDisplay();
+        }
+
+        // Remove item from selected items
+        function removeItem(name, uom) {
+            selectedItems = selectedItems.filter(i => !(i.name === name && i.uom === uom));
+            updateItemsDisplay();
+        }
+
+        // Handle done transaction
         document.getElementById('done-transaction').addEventListener('click', () => {
             if (totalAmount > 0) {
                 fetch('http://localhost:5000/record_transaction', {
@@ -150,14 +201,10 @@
                         totalAmount: totalAmount
                     })
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
                     alert(data.message);
+                    // Clear selected items and total
                     selectedItems = [];
                     totalAmount = 0;
                     updateItemsDisplay();
@@ -170,10 +217,12 @@
             }
         });
 
+        // Navigate to Inventory Menu
         document.getElementById('go-inventory').addEventListener('click', () => {
             window.location.href = 'inventory.html';
         });
 
+        // Navigate to Manage BOM
         document.getElementById('go-manage-sku').addEventListener('click', () => {
             window.location.href = 'manage_sku.html'; // Ensure you create this page
         });
