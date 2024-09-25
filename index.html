@@ -52,10 +52,10 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column; /* Stack items vertically */
-            align-items: flex-start; /* Align items to the start */
         }
         .selected-item {
             display: flex;
+            justify-content: space-between;
             align-items: center;
             margin: 5px 0; /* Margin between items */
             padding: 5px;
@@ -63,8 +63,7 @@
             border-radius: 5px;
             background-color: #f9f9f9;
             width: 100%; /* Full width for selected items */
-            justify-content: space-between; /* Space between content */
-            max-width: 300px; /* Set a max width for compactness */
+            max-width: 100%; /* Allow the width to be full */
         }
         .remove-item {
             background-color: red;
