@@ -8,6 +8,8 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            max-width: 600px; /* Limit the overall width */
+            margin: auto; /* Center the content */
         }
         #header {
             display: flex;
@@ -22,6 +24,7 @@
             margin-bottom: 10px;
         }
         .item-button {
+            width: calc(100% - 12px); /* Make button fill the width */
             margin: 2px;
             padding: 8px;
             border: none;
@@ -41,20 +44,25 @@
             font-size: 16px;
             cursor: pointer;
             margin-top: 10px;
-        }
-        #done-transaction:hover {
-            background-color: darkred;
+            width: 100%; /* Make the button full width */
         }
         #selected-items {
             margin-top: 10px;
             max-height: 200px;
             overflow-y: auto;
+            display: flex; /* Use flexbox for horizontal layout */
+            flex-wrap: wrap; /* Allow items to wrap */
         }
         .selected-item {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin: 3px 0;
+            margin: 5px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            width: calc(48% - 10px); /* Adjust item width */
+            justify-content: space-between; /* Space between content */
         }
         .remove-item {
             background-color: red;
@@ -78,7 +86,7 @@
     <div id="header">
         <h1 style="font-size: 20px;">Cashier Menu</h1>
         <div>
-            <button id="go-inventory" style="font-size: 12px;">Go to Inventory</button>
+            <button id="go-inventory" style="font-size: 12px;">Inventory</button>
             <button id="go-manage-sku" style="font-size: 12px;">Manage SKU</button>
         </div>
     </div>
